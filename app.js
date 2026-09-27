@@ -382,8 +382,7 @@ const App = {
       <div class="row"><div class="grow"><div class="muted">${ymLabel(this.ym)} 이체 합계 · ${ids.length}개 계좌</div>
         <div class="sum-total amt" style="margin:2px 0 0">${won(t.total)}</div></div></div>
       <div class="progress"><i style="width:${(doneCnt / ids.length) * 100}%"></i></div>
-      <div class="row" style="margin-top:8px"><span class="muted grow">완료 ${doneCnt}/${ids.length} · 남은 금액 <b class="amt" style="color:var(--text)">${won(t.total - doneSum)}</b></span>
-        <button class="btn gray sm" data-act="copyAll">전체 목록 복사</button></div>
+      <div class="row" style="margin-top:8px"><span class="muted grow">완료 ${doneCnt}/${ids.length} · 남은 금액 <b class="amt" style="color:var(--text)">${won(t.total - doneSum)}</b></span></div>
     </div>`;
     const cards = ids.map((id) => {
       const a = this.acc(id); const x = t.byAcc[id]; const done = !!M.done[id];
@@ -402,11 +401,11 @@ const App = {
           ${x.list.map((e) => `<div class="grp-line"><span>${esc((this.item(e.itemId) || {}).name || '')} <span class="badge b-${e.payer}">${esc(this.pname(e.payer))}</span>${e.memo ? ' ' + esc(e.memo) : ''}</span><span class="amt">${won(e.amount)}</span></div>`).join('')}
         </details>
         ${a ? `<button class="btn kakao block" style="margin-top:12px;height:48px" data-act="copyTx" data-id="${id}">이체정보 복사</button>
-        <div class="muted" style="text-align:center;margin-top:6px;font-size:12px">${x.sum} ${esc(a.number)} ${esc(a.bank)}</div>` : ''}
+        <div class="muted" style="text-align:center;margin-top:6px;font-size:12px">${x.sum} ${esc(a.bank)} ${esc(a.number)}</div>` : ''}
       </div>`;
     }).join('');
     return `<div class="wrap">${head}
-      <div class="muted" style="padding:0 4px">‘이체정보 복사’를 누르면 금액·계좌번호·은행명이 한 번에 복사돼요. 카카오뱅크를 열어 바로 이체하고, 끝나면 ✓ 를 눌러 표시해 두세요.</div>
+      <div class="muted" style="padding:0 4px">‘이체정보 복사’를 누르면 금액·은행명·계좌번호가 한 번에 복사돼요. 카카오뱅크를 열어 바로 이체하고, 끝나면 ✓ 를 눌러 표시해 두세요.</div>
       ${cards}</div>`;
   },
 
@@ -466,15 +465,8 @@ const App = {
       case 'copyPrev': this.copyFromSheet(el.dataset.ym); break;
       case 'copyPrevAsk': this.pickMonthSheet(); break;
       case 'toggleDone': this.setMonth((d) => { d.done ||= {}; if (d.done[id]) delete d.done[id]; else d.done[id] = true; }, '이체 완료 표시'); break;
-      case 'copyTx': { const a = this.acc(id); const sum = t().byAcc[id].sum; const txt = `${sum} ${a.number} ${a.bank}`;
+      case 'copyTx': { const a = this.acc(id); const sum = t().byAcc[id].sum; const txt = `${sum} ${a.bank} ${a.number}`;
         if (await copyText(txt)) toast(`복사됨: ${txt}`, 2200); else toast('복사에 실패했어요'); break; }
-      case 'copyAll': {
-        const tt = t(); const lines = [`[${ymLabel(this.ym)} 이체 목록] 합계 ${won(tt.total)}`];
-        for (const a of this.S.accounts) { const x = tt.byAcc[a.id]; if (!x || !x.sum) continue;
-          const names = [...new Set(x.list.map((e) => (this.item(e.itemId) || {}).name).filter(Boolean))];
-          lines.push(`${this.M.done[a.id] ? '✅' : '▫️'} ${a.bank} ${a.number}${a.holder ? ` (${a.holder})` : ''} ${won(x.sum)} — ${a.alias || names.join(', ')}`); }
-        if (await copyText(lines.join('\n'))) toast('전체 목록을 복사했어요'); break;
-      }
       case 'addAcc': this.accSheet(); break;
       case 'editAcc': this.accSheet(this.acc(id)); break;
       case 'addItem': this.itemSheet(); break;
