@@ -181,10 +181,10 @@ const BANKS = ['카카오뱅크', '토스뱅크', '국민은행', '신한은행'
 const TX_FORMATS = {
   plain: { label: '2000000 토스뱅크 1000-5817-1580', fn: (n, a) => `${n} ${a.bank} ${a.number}` },
   won: { label: '2,000,000원 토스뱅크 1000-5817-1580', fn: (n, a) => `${n.toLocaleString('ko-KR')}원 ${a.bank} ${a.number}` },
-  wonNoDash: { label: '2,000,000원 토스뱅크 100058171580', fn: (n, a) => `${n.toLocaleString('ko-KR')}원 ${a.bank} ${String(a.number).replace(/[^0-9]/g, '')}` },
+  wonNoDash: { label: '2,000,000원 토스뱅크 100058171580 (추천)', fn: (n, a) => `${n.toLocaleString('ko-KR')}원 ${a.bank} ${String(a.number).replace(/[^0-9]/g, '')}` },
   lines: { label: '토스뱅크 1000-5817-1580 (줄바꿈) 2,000,000원', fn: (n, a) => `${a.bank} ${a.number}\n${n.toLocaleString('ko-KR')}원` },
 };
-const txText = (fmt, n, a) => (TX_FORMATS[fmt] || TX_FORMATS.plain).fn(Number(n) || 0, a);
+const txText = (fmt, n, a) => (TX_FORMATS[fmt] || TX_FORMATS.wonNoDash).fn(Number(n) || 0, a);
 
 /* ---------- 앱 ---------- */
 const App = {
@@ -444,7 +444,7 @@ const App = {
         <div class="chips" style="flex-wrap:wrap">${S.groups.map((g, i) => `<button class="chip" data-act="editGroup" data-i="${i}">${esc(g)}</button>`).join('')}</div></div>
       <div class="card"><h3>이체정보 복사 형식</h3>
         <div class="muted" style="margin-bottom:8px">카카오뱅크가 금액을 잘 읽는 형식을 골라 쓰세요.</div>
-        <select class="input" id="txFmt">${Object.entries(TX_FORMATS).map(([k, v]) => `<option value="${k}" ${(S.txFormat || 'plain') === k ? 'selected' : ''}>${esc(v.label)}</option>`).join('')}</select></div>
+        <select class="input" id="txFmt">${Object.entries(TX_FORMATS).map(([k, v]) => `<option value="${k}" ${(S.txFormat || 'wonNoDash') === k ? 'selected' : ''}>${esc(v.label)}</option>`).join('')}</select></div>
       <div class="card"><h3>이름</h3>
         <div class="row"><input class="input" id="nmMe" value="${esc(S.names.me)}" placeholder="나"><input class="input" id="nmWife" value="${esc(S.names.wife)}" placeholder="와이프"></div>
         <button class="btn gray block" style="margin-top:10px" data-act="saveNames">이름 저장</button></div>
