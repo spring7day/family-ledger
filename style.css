@@ -15,7 +15,7 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+html, body { overflow-x: hidden; margin: 0; padding: 0; background: var(--bg); color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
   font-size: 15px; line-height: 1.45; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -67,10 +67,11 @@ label.f { display: block; font-size: 13px; color: var(--sub); margin: 14px 0 6px
 
 /* 요약 */
 .sum-total { font-size: 28px; font-weight: 800; letter-spacing: -.5px; margin: 2px 0 12px; }
-.sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.sum-grid div { background: var(--bg); border-radius: 12px; padding: 9px 10px; }
+.sum-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 400px) { .sum-grid { grid-template-columns: 1fr; gap: 4px; } .sum-grid div { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; } .sum-grid .l { font-size: 13px; } .sum-grid .v { font-size: 15px; } }
+.sum-grid div { background: var(--bg); border-radius: 12px; padding: 9px 8px; min-width: 0; }
 .sum-grid .l { font-size: 12px; color: var(--sub); }
-.sum-grid .v { font-size: 14px; }
+.sum-grid .v { font-size: clamp(12px, 3.6vw, 15px); letter-spacing: -.3px; overflow: hidden; text-overflow: ellipsis; }
 .bar { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--line); margin-top: 12px; }
 .bar i { display: block; height: 100%; }
 .grp-line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
