@@ -68,7 +68,6 @@ label.f { display: block; font-size: 13px; color: var(--sub); margin: 14px 0 6px
 /* 요약 */
 .sum-total { font-size: 28px; font-weight: 800; letter-spacing: -.5px; margin: 2px 0 12px; }
 .sum-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-@media (max-width: 400px) { .sum-grid { grid-template-columns: 1fr; gap: 4px; } .sum-grid > div { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; } .sum-grid .l { font-size: 13px; } .sum-grid .v { font-size: 15px; } }
 .sum-grid > div { background: var(--bg); border-radius: 12px; padding: 9px 8px; min-width: 0; }
 .sum-grid .l { font-size: 12px; color: var(--sub); }
 .sum-grid .v { font-size: clamp(12px, 3.3vw, 15px); letter-spacing: -.3px; overflow: hidden; text-overflow: ellipsis; }
@@ -137,3 +136,4 @@ label.f { display: block; font-size: 13px; color: var(--sub); margin: 14px 0 6px
 .toast { position: fixed; left: 50%; bottom: calc(96px + var(--safe-b)); transform: translate(-50%, 20px); background: rgba(28,29,33,.92); color: #fff; padding: 11px 18px; border-radius: 14px; font-size: 14px; z-index: 99; opacity: 0; pointer-events: none; transition: .2s; max-width: 88vw; text-align: center; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .loading { padding: 60px 0; text-align: center; color: var(--sub); }
+@media (max-width: 400px) { .sum-grid { grid-template-columns: 1fr; gap: 4px; } .sum-grid > div { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; } .sum-grid .l { font-size: 13px; } .sum-grid .v { font-size: 15px; } }
