@@ -177,6 +177,15 @@ const DEFAULT_SETTINGS = () => ({ version: 1, names: { me: '지민', wife: '와�
 const monthInit = (ym) => () => ({ ym, entries: [], done: {} });
 const BANKS = ['카카오뱅크', '토스뱅크', '국민은행', '신한은행', '우리은행', '하나은행', '농협은행', '지역농축협', '기업은행', 'SC제일은행', '케이뱅크', '새마을금고', '우체국', '수협은행', '신협', 'iM뱅크(대구)', '부산은행', '경남은행', '광주은행', '전북은행', '제주은행', '한국씨티은행', '산업은행', '저축은행'];
 
+/* ---------- 이체정보 복사 형식 ---------- */
+const TX_FORMATS = {
+  plain: { label: '2000000 토스뱅크 1000-5817-1580', fn: (n, a) => `${n} ${a.bank} ${a.number}` },
+  won: { label: '2,000,000원 토스뱅크 1000-5817-1580', fn: (n, a) => `${n.toLocaleString('ko-KR')}원 ${a.bank} ${a.number}` },
+  wonNoDash: { label: '2,000,000원 토스뱅크 100058171580', fn: (n, a) => `${n.toLocaleString('ko-KR')}원 ${a.bank} ${String(a.number).replace(/[^0-9]/g, '')}` },
+  lines: { label: '토스뱅크 1000-5817-1580 (줄바꿈) 2,000,000원', fn: (n, a) => `${a.bank} ${a.number}\n${n.toLocaleString('ko-KR')}원` },
+};
+const txText = (fmt, n, a) => (TX_FORMATS[fmt] || TX_FORMATS.plain).fn(Number(n) || 0, a);
+
 /* ---------- 앱 ---------- */
 const App = {
   tab: LS.get('fl:tab', 'list'),
@@ -401,7 +410,7 @@ const App = {
           ${x.list.map((e) => `<div class="grp-line"><span>${esc((this.item(e.itemId) || {}).name || '')} <span class="badge b-${e.payer}">${esc(this.pname(e.payer))}</span>${e.memo ? ' ' + esc(e.memo) : ''}</span><span class="amt">${won(e.amount)}</span></div>`).join('')}
         </details>
         ${a ? `<button class="btn kakao block" style="margin-top:12px;height:48px" data-act="copyTx" data-id="${id}">이체정보 복사</button>
-        <div class="muted" style="text-align:center;margin-top:6px;font-size:12px">${x.sum} ${esc(a.bank)} ${esc(a.number)}</div>` : ''}
+        <div class="muted" style="text-align:center;margin-top:6px;font-size:12px">${esc(txText(S.txFormat, x.sum, a)).replace(/\n/g, ' ⏎ ')}</div>` : ''}
       </div>`;
     }).join('');
     return `<div class="wrap">${head}
@@ -433,6 +442,9 @@ const App = {
       <div class="card"><h3>비용 항목 <button class="btn sm" data-act="addItem">＋ 추가</button></h3>${itemHtml || '<div class="empty">항목이 없어요</div>'}</div>
       <div class="card"><h3>구분 <button class="btn sm" data-act="addGroup">＋ 추가</button></h3>
         <div class="chips" style="flex-wrap:wrap">${S.groups.map((g, i) => `<button class="chip" data-act="editGroup" data-i="${i}">${esc(g)}</button>`).join('')}</div></div>
+      <div class="card"><h3>이체정보 복사 형식</h3>
+        <div class="muted" style="margin-bottom:8px">카카오뱅크가 금액을 잘 읽는 형식을 골라 쓰세요.</div>
+        <select class="input" id="txFmt">${Object.entries(TX_FORMATS).map(([k, v]) => `<option value="${k}" ${(S.txFormat || 'plain') === k ? 'selected' : ''}>${esc(v.label)}</option>`).join('')}</select></div>
       <div class="card"><h3>이름</h3>
         <div class="row"><input class="input" id="nmMe" value="${esc(S.names.me)}" placeholder="나"><input class="input" id="nmWife" value="${esc(S.names.wife)}" placeholder="와이프"></div>
         <button class="btn gray block" style="margin-top:10px" data-act="saveNames">이름 저장</button></div>
@@ -444,6 +456,7 @@ const App = {
 
   /* ----- 이벤트 ----- */
   onChange(e) {
+    if (e.target.id === 'txFmt') { const v = e.target.value; this.setSettings((s) => { s.txFormat = v; }, `복사 형식: ${v}`); toast('복사 형식을 바꿨어요'); return; }
     if (e.target.id === 'selY' || e.target.id === 'selM') {
       const y = document.getElementById('selY').value, m = document.getElementById('selM').value;
       this.goYm(`${y}-${pad(m)}`);
@@ -465,7 +478,7 @@ const App = {
       case 'copyPrev': this.copyFromSheet(el.dataset.ym); break;
       case 'copyPrevAsk': this.pickMonthSheet(); break;
       case 'toggleDone': this.setMonth((d) => { d.done ||= {}; if (d.done[id]) delete d.done[id]; else d.done[id] = true; }, '이체 완료 표시'); break;
-      case 'copyTx': { const a = this.acc(id); const sum = t().byAcc[id].sum; const txt = `${sum} ${a.bank} ${a.number}`;
+      case 'copyTx': { const a = this.acc(id); const sum = t().byAcc[id].sum; const txt = txText(this.S.txFormat, sum, a);
         if (await copyText(txt)) toast(`복사됨: ${txt}`, 2200); else toast('복사에 실패했어요'); break; }
       case 'addAcc': this.accSheet(); break;
       case 'editAcc': this.accSheet(this.acc(id)); break;
