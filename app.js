@@ -401,14 +401,12 @@ const App = {
         <details><summary>▾ 내역 ${x.list.length}건 보기</summary>
           ${x.list.map((e) => `<div class="grp-line"><span>${esc((this.item(e.itemId) || {}).name || '')} <span class="badge b-${e.payer}">${esc(this.pname(e.payer))}</span>${e.memo ? ' ' + esc(e.memo) : ''}</span><span class="amt">${won(e.amount)}</span></div>`).join('')}
         </details>
-        ${a ? `<div class="btns">
-          <button class="btn kakao sm" style="height:44px" data-act="copyAcc" data-id="${id}">계좌번호 복사</button>
-          <button class="btn gray sm" style="height:44px" data-act="copyAmt" data-id="${id}">금액 복사 (${x.sum.toLocaleString('ko-KR')})</button>
-        </div>` : ''}
+        ${a ? `<button class="btn kakao block" style="margin-top:12px;height:48px" data-act="copyTx" data-id="${id}">이체정보 복사</button>
+        <div class="muted" style="text-align:center;margin-top:6px;font-size:12px">${x.sum} ${esc(a.number)} ${esc(a.bank)}</div>` : ''}
       </div>`;
     }).join('');
     return `<div class="wrap">${head}
-      <div class="muted" style="padding:0 4px">계좌번호를 복사하고 카카오뱅크를 열면 ‘복사한 계좌로 보내기’가 떠요. 금액 복사 후 붙여넣고 이체하세요. 끝나면 ✓ 를 눌러 표시해 두세요.</div>
+      <div class="muted" style="padding:0 4px">‘이체정보 복사’를 누르면 금액·계좌번호·은행명이 한 번에 복사돼요. 카카오뱅크를 열어 바로 이체하고, 끝나면 ✓ 를 눌러 표시해 두세요.</div>
       ${cards}</div>`;
   },
 
@@ -468,8 +466,8 @@ const App = {
       case 'copyPrev': this.copyFromSheet(el.dataset.ym); break;
       case 'copyPrevAsk': this.pickMonthSheet(); break;
       case 'toggleDone': this.setMonth((d) => { d.done ||= {}; if (d.done[id]) delete d.done[id]; else d.done[id] = true; }, '이체 완료 표시'); break;
-      case 'copyAcc': { const a = this.acc(id); if (await copyText(`${a.bank} ${a.number}`)) toast(`${a.bank} ${a.number} 복사됨`); else toast('복사에 실패했어요'); break; }
-      case 'copyAmt': { const s = t().byAcc[id].sum; if (await copyText(String(s))) toast(`${won(s)} 복사됨`); else toast('복사에 실패했어요'); break; }
+      case 'copyTx': { const a = this.acc(id); const sum = t().byAcc[id].sum; const txt = `${sum} ${a.number} ${a.bank}`;
+        if (await copyText(txt)) toast(`복사됨: ${txt}`, 2200); else toast('복사에 실패했어요'); break; }
       case 'copyAll': {
         const tt = t(); const lines = [`[${ymLabel(this.ym)} 이체 목록] 합계 ${won(tt.total)}`];
         for (const a of this.S.accounts) { const x = tt.byAcc[a.id]; if (!x || !x.sum) continue;
